@@ -1,6 +1,6 @@
 ﻿namespace Prueba_Myper.Models.DTO
 {
-    public class TrabajadorVista
+    public class TrabajadorDto
     {
         public int Id { get; set; }
         public string TipoDocumento { get; set; }
