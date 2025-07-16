@@ -14,7 +14,6 @@
     Registrar Trabajador
 </button>
 
-
 <table class="table">
     
     @{
@@ -47,8 +46,8 @@
     <tbody>
         @foreach (var t in Model)
         {
-            <tr style="@((t.Sexo?.ToLower() == "f") ? "background-color: pink;" :
-                       (t.Sexo?.ToLower() == "m") ? "background-color: lightblue;" : "")">
+            <tr style="@((t.Sexo?.ToUpper() == "F") ? "background-color: pink;" :
+                       (t.Sexo?.ToUpper() == "M") ? "background-color: lightblue;" : "")">
                 <td>@t.Id</td>
                 <td>@t.TipoDocumento</td>
                 <td>@t.NumeroDocumento</td>
@@ -76,8 +75,6 @@
                             data-iddistrito="@t.IdDistrito">
                         <i class="bi bi-pencil-square"></i> Editar
                     </button>
-
-
                    
                 </td>
             </tr>
@@ -93,6 +90,7 @@
 </table>
 
 @await Html.PartialAsync("_ModalCrearTrabajor", (List<Prueba_Myper.Models.DTO.DepartamentoDto>)ViewBag.Departamentos)
+@await Html.PartialAsync("_ModalMensaje")
 
 
 <script src="~/js/site.js"></script>

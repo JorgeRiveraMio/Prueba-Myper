@@ -12,7 +12,9 @@ namespace Prueba_Myper.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
-        public DbSet<TrabajadorVista> TrabajadorVista { get; set; }
+        public DbSet<Trabajador> Trabajadores { get; set; }            
+        public DbSet<TrabajadorVista> TrabajadorVista { get; set; } 
+
         public DbSet<DepartamentoDto> Departamentos { get; set; }
         public DbSet<ProvinciaDto> Provincias { get; set; }
         public DbSet<DistritoDto> Distritos { get; set; }
@@ -25,6 +27,20 @@ namespace Prueba_Myper.Data
             modelBuilder.Entity<Provincia>().ToTable("Provincia");
             modelBuilder.Entity<Distrito>().ToTable("Distrito");
         }
+     
+        public async Task<List<TrabajadorVista>> ObtenerTrabajadoresFiltradosAsync(string sexo)
+        {
+            var query = "EXEC sp_ListarTrabajadores";
+            var sexoUpper = sexo?.ToUpper();
+
+            if (sexoUpper == "M" || sexoUpper == "F")
+            {
+                query += $" @sexo = '{sexoUpper}'";
+            }
+
+            return await TrabajadorVista.FromSqlRaw(query).ToListAsync();
+        }
+
         public async Task<List<DepartamentoDto>> ObtenerDepartamentosAsync()
         {
             return await this.Set<DepartamentoDto>()

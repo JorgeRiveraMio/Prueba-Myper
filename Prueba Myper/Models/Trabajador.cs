@@ -12,8 +12,6 @@
         public int? IdProvincia { get; set; }
         public int? IdDistrito { get; set; }
 
-        //public Departamento Departamento { get; set; }
-        //public Provincia Provincia { get; set; }
-        //public Distrito Distrito { get; set; }
+       
     }
 }

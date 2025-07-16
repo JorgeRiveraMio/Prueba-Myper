@@ -1,54 +1,71 @@
 ﻿
-    document.addEventListener("DOMContentLoaded", function () {
-        const departamentoSelect = document.getElementById("departamento");
-        const provinciaSelect = document.getElementById("provincia");
-        const distritoSelect = document.getElementById("distrito");
+document.addEventListener("DOMContentLoaded", function () {
+    // Mapeo de elementos
+    const selects = {
+        crear: {
+            departamento: document.getElementById("departamento"),
+            provincia: document.getElementById("provincia"),
+            distrito: document.getElementById("distrito")
+        },
+        editar: {
+            departamento: document.getElementById("editarDepartamento"),
+            provincia: document.getElementById("editarProvincia"),
+            distrito: document.getElementById("editarDistrito")
+        }
+    };
 
-        departamentoSelect.addEventListener("change", function () {
-            const departamentoId = this.value;
-            provinciaSelect.innerHTML = "<option value=''>-- Selecciona --</option>";
-            distritoSelect.innerHTML = "<option value=''>-- Selecciona --</option>";
+    // Función para poblar un select con opciones
+    function poblarSelect(select, data, textKey, valueKey) {
+        select.innerHTML = "<option value=''>-- Selecciona --</option>";
+        data.forEach(item => {
+            const option = document.createElement("option");
+            option.value = item[valueKey];
+            option.textContent = item[textKey];
+            select.appendChild(option);
+        });
+    }
+    // Función para cargar provincias o distritos
+    function cargarUbigeo(url, select, textKey, valueKey, callback) {
+        fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                poblarSelect(select, data, textKey, valueKey);
+                if (typeof callback === "function") callback();
+            });
+    }
 
-            if (departamentoId) {
-                fetch(`/Trabajadores/ObtenerProvincias?idDepartamento=${departamentoId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        data.forEach(p => {
-                            const option = document.createElement("option");
-                            option.value = p.id;
-                            option.textContent = p.nombreProvincia;
-                            provinciaSelect.appendChild(option);
-                        });
-                    });
+    // Listener en cascada para crear o editar
+    function configurarUbigeoCascada(deps) {
+        deps.departamento.addEventListener("change", () => {
+            const id = deps.departamento.value;
+            poblarSelect(deps.provincia, [], "", "");
+            poblarSelect(deps.distrito, [], "", "");
+
+            if (id) {
+                cargarUbigeo(`/Trabajadores/ObtenerProvincias?idDepartamento=${id}`, deps.provincia, "nombreProvincia", "id");
             }
         });
 
-        provinciaSelect.addEventListener("change", function () {
-            const provinciaId = this.value;
-            distritoSelect.innerHTML = "<option value=''>-- Selecciona --</option>";
+        deps.provincia.addEventListener("change", () => {
+            const id = deps.provincia.value;
+            poblarSelect(deps.distrito, [], "", "");
 
-            if (provinciaId) {
-                fetch(`/Trabajadores/ObtenerDistritos?idProvincia=${provinciaId}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        data.forEach(d => {
-                            const option = document.createElement("option");
-                            option.value = d.id;
-                            option.textContent = d.nombreDistrito;
-                            distritoSelect.appendChild(option);
-                        });
-                    });
+            if (id) {
+                cargarUbigeo(`/Trabajadores/ObtenerDistritos?idProvincia=${id}`, deps.distrito, "nombreDistrito", "id");
             }
         });
-    });
+    }
 
+    // Inicializar listeners de cascada
+    configurarUbigeoCascada(selects.crear);
+    configurarUbigeoCascada(selects.editar);
 
+    // Modal editar
     const modalEditar = document.getElementById("modalEditarTrabajador");
-
     modalEditar.addEventListener("show.bs.modal", function (event) {
         const button = event.relatedTarget;
+        const deps = selects.editar;
 
-        // Cargar valores al abrir el modal
         document.getElementById("editarId").value = button.getAttribute("data-id");
         document.getElementById("editarTipoDocumento").value = button.getAttribute("data-tipodocumento");
         document.getElementById("editarNumeroDocumento").value = button.getAttribute("data-numerodocumento");
@@ -59,83 +76,20 @@
         const provinciaId = button.getAttribute("data-idprovincia");
         const distritoId = button.getAttribute("data-iddistrito");
 
-        const departamentoSelect = document.getElementById("editarDepartamento");
-        const provinciaSelect = document.getElementById("editarProvincia");
-        const distritoSelect = document.getElementById("editarDistrito");
-
-        departamentoSelect.value = departamentoId;
-
-        // Limpiar combos dependientes
-        provinciaSelect.innerHTML = "<option value=''>-- Selecciona --</option>";
-        distritoSelect.innerHTML = "<option value=''>-- Selecciona --</option>";
+        deps.departamento.value = departamentoId;
+        poblarSelect(deps.provincia, [], "", "");
+        poblarSelect(deps.distrito, [], "", "");
 
         if (departamentoId) {
-            fetch(`/Trabajadores/ObtenerProvincias?idDepartamento=${departamentoId}`)
-                .then(res => res.json())
-                .then(provincias => {
-                    provincias.forEach(p => {
-                        const option = document.createElement("option");
-                        option.value = p.id;
-                        option.textContent = p.nombreProvincia;
-                        provinciaSelect.appendChild(option);
-                    });
-                    provinciaSelect.value = provinciaId;
+            cargarUbigeo(`/Trabajadores/ObtenerProvincias?idDepartamento=${departamentoId}`, deps.provincia, "nombreProvincia", "id", () => {
+                deps.provincia.value = provinciaId;
 
-                    if (provinciaId) {
-                        fetch(`/Trabajadores/ObtenerDistritos?idProvincia=${provinciaId}`)
-                            .then(res => res.json())
-                            .then(distritos => {
-                                distritos.forEach(d => {
-                                    const option = document.createElement("option");
-                                    option.value = d.id;
-                                    option.textContent = d.nombreDistrito;
-                                    distritoSelect.appendChild(option);
-                                });
-                                distritoSelect.value = distritoId;
-                            });
-                    }
-                });
+                if (provinciaId) {
+                    cargarUbigeo(`/Trabajadores/ObtenerDistritos?idProvincia=${provinciaId}`, deps.distrito, "nombreDistrito", "id", () => {
+                        deps.distrito.value = distritoId;
+                    });
+                }
+            });
         }
     });
-
-    // Listeners en cascada (igual que el de crear)
-    document.getElementById("editarDepartamento").addEventListener("change", function () {
-        const depId = this.value;
-        const provinciaSelect = document.getElementById("editarProvincia");
-        const distritoSelect = document.getElementById("editarDistrito");
-        provinciaSelect.innerHTML = "<option value=''>-- Selecciona --</option>";
-        distritoSelect.innerHTML = "<option value=''>-- Selecciona --</option>";
-
-        if (depId) {
-            fetch(`/Trabajadores/ObtenerProvincias?idDepartamento=${depId}`)
-                .then(response => response.json())
-                .then(data => {
-                    data.forEach(p => {
-                        const option = document.createElement("option");
-                        option.value = p.id;
-                        option.textContent = p.nombreProvincia;
-                        provinciaSelect.appendChild(option);
-                    });
-                });
-        }
-    });
-
-    document.getElementById("editarProvincia").addEventListener("change", function () {
-        const provId = this.value;
-        const distritoSelect = document.getElementById("editarDistrito");
-        distritoSelect.innerHTML = "<option value=''>-- Selecciona --</option>";
-
-        if (provId) {
-            fetch(`/Trabajadores/ObtenerDistritos?idProvincia=${provId}`)
-                .then(response => response.json())
-                .then(data => {
-                    data.forEach(d => {
-                        const option = document.createElement("option");
-                        option.value = d.id;
-                        option.textContent = d.nombreDistrito;
-                        distritoSelect.appendChild(option);
-                    });
-                });
-        }
-    });
-
+});

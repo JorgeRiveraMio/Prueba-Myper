@@ -12,33 +12,14 @@ namespace Prueba_Myper.Controllers
         public TrabajadoresController(AppDbContext context)
         {
             _context = context;
-        }
-      
+        }    
+
         public async Task<IActionResult> Index(string sexo)
         {
-            var query = "EXEC sp_ListarTrabajadores";
-
-            // Filtrar por sexo 
-            if (!string.IsNullOrEmpty(sexo))
-            {
-                
-                sexo = sexo.ToUpper();
-                if (sexo == "M" || sexo == "F")
-                {
-                    query += $" @sexo = '{sexo}'"; 
-                }
-            }
-
-            var trabajadores = await _context.TrabajadorVista
-                .FromSqlRaw(query)
-                .ToListAsync();
-
-            var departamentos = await _context.ObtenerDepartamentosAsync();
-            ViewBag.Departamentos = departamentos;
-
+            var trabajadores = await _context.ObtenerTrabajadoresFiltradosAsync(sexo);
+            ViewBag.Departamentos = await _context.ObtenerDepartamentosAsync();
             return View(trabajadores);
         }
-
 
         [HttpGet]
         public async Task<IActionResult> ObtenerProvincias(int idDepartamento)
@@ -61,21 +42,14 @@ namespace Prueba_Myper.Controllers
 
             if (!ModelState.IsValid)
             {
-                foreach (var error in ModelState)
-                {
-                    Console.WriteLine($"Campo: {error.Key}");
-                    foreach (var err in error.Value.Errors)
-                    {
-                        Console.WriteLine($" - Error: {err.ErrorMessage}");
-                    }
-                }
-
+              
+                TempData["Error"] = "Error de datos";
                 return RedirectToAction(nameof(Index));
             }
 
 
             await _context.CrearTrabajadorAsync(trabajador);
-
+            TempData["Success"] = "Trabajador registrado correctamente";
             return RedirectToAction(nameof(Index));
         }
 
@@ -88,12 +62,13 @@ namespace Prueba_Myper.Controllers
             try
             {
                 await _context.EliminarTrabajadorAsync(id);
+                TempData["Success"] = "Trabajador eliminado correctamente.";
                 return RedirectToAction(nameof(Index));
             }
             catch (SqlException ex)
             {
-              
-                    ModelState.AddModelError("", $"Error al eliminar: {ex.Message}");
+                TempData["Error"] = "Error al eliminar al trabajador";
+               
                 return RedirectToAction(nameof(Index)); 
             }
         }
