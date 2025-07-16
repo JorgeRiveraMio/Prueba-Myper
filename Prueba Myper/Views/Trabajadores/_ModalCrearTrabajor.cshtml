@@ -1,0 +1,84 @@
+﻿@using Prueba_Myper.Models.DTO
+@model List<Prueba_Myper.Models.DTO.DepartamentoDto>
+
+<!-- Modal Crear -->
+<div class="modal fade" id="modalCrearTrabajador" tabindex="-1" aria-labelledby="modalCrearTrabajadorLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/Trabajadores/Crear" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalCrearTrabajadorLabel">Nuevo Trabajador</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tipo Documento</label>
+                        <select name="TipoDocumento" class="form-select" required>
+                            <option value="">-- Selecciona --</option>
+                            <option value="DNI">DNI</option>
+                            <option value="CE">Carné de Extranjería</option>
+                            <option value="PAS">Pasaporte</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Número Documento</label>
+                        <input name="NumeroDocumento" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nombres</label>
+                        <input name="Nombres" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Sexo</label>
+                        <select name="Sexo" class="form-select" required>
+                            <option value="">Seleccione</option>
+                            <option value="M">Masculino</option>
+                            <option value="F">Femenino</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="departamento">Departamento</label>
+                        <select id="departamento" name="IdDepartamento" class="form-select" required>
+
+                            <option value="">-- Selecciona --</option>
+                            @foreach (var d in ViewBag.Departamentos as List<DepartamentoDto>)
+                            {
+                                <option value="@d.Id">@d.NombreDepartamento</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="provincia">Provincia</label>
+                        <select id="provincia" name="IdProvincia" class="form-select" required>
+
+                            <option value="">-- Cargando --</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="distrito">Distrito</label>
+                        <select id="distrito" name="IdDistrito" class="form-select" required>
+
+                            <option value="">-- Cargando --</option>
+                        </select>
+                    </div>
+
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@if (ViewBag.ErrorMensaje != null)
+{
+    <div class="alert alert-danger">
+        @ViewBag.ErrorMensaje
+    </div>
+}

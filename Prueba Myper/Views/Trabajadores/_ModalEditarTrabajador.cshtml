@@ -1,0 +1,76 @@
+﻿@using Prueba_Myper.Models.DTO
+@model List<DepartamentoDto>
+
+
+<!-- Modal Actualizar -->
+<div class="modal fade" id="modalEditarTrabajador" tabindex="-1" aria-labelledby="modalEditarTrabajadorLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/Trabajadores/Actualizar" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditarTrabajadorLabel">Editar Trabajador</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="Id" id="editarId" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Tipo Documento</label>
+                        <select name="TipoDocumento" id="editarTipoDocumento" class="form-select" required>
+                            <option value="DNI">DNI</option>
+                            <option value="CE">Carné de Extranjería</option>
+                            <option value="PAS">Pasaporte</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Número Documento</label>
+                        <input name="NumeroDocumento" id="editarNumeroDocumento" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Nombres</label>
+                        <input name="Nombres" id="editarNombres" class="form-control" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Sexo</label>
+                        <select name="Sexo" id="editarSexo" class="form-select" required>
+                            <option value="M">Masculino</option>
+                            <option value="F">Femenino</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Departamento</label>
+                        <select name="IdDepartamento" id="editarDepartamento" class="form-select" required>
+                            <option value="">-- Selecciona --</option>
+                            @foreach (var d in Model)
+                            {
+                                <option value="@d.Id">@d.NombreDepartamento</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Provincia</label>
+                        <select name="IdProvincia" id="editarProvincia" class="form-select" required>
+                            <option value="">-- Cargando --</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Distrito</label>
+                        <select name="IdDistrito" id="editarDistrito" class="form-select" required>
+                            <option value="">-- Cargando --</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

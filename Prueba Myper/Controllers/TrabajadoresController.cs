@@ -13,7 +13,6 @@ namespace Prueba_Myper.Controllers
         {
             _context = context;
         }
-
       
         public async Task<IActionResult> Index(string sexo)
         {
@@ -59,7 +58,7 @@ namespace Prueba_Myper.Controllers
         [HttpPost]
         public async Task<IActionResult> Crear(Trabajador trabajador)
         {
-            Console.WriteLine("ENTRÓ AL MÉTODO CREAR");
+
             if (!ModelState.IsValid)
             {
                 foreach (var error in ModelState)
@@ -80,6 +79,9 @@ namespace Prueba_Myper.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+
+
+
         [HttpPost]
         public async Task<IActionResult> Eliminar(int id)
         {
@@ -92,7 +94,7 @@ namespace Prueba_Myper.Controllers
             {
               
                     ModelState.AddModelError("", $"Error al eliminar: {ex.Message}");
-                return RedirectToAction(nameof(Index)); // o mostrar una vista de error
+                return RedirectToAction(nameof(Index)); 
             }
         }
 
@@ -118,10 +120,6 @@ namespace Prueba_Myper.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
-
-
-
-
 
     }
 }

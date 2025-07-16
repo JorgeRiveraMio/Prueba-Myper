@@ -1,0 +1,22 @@
+﻿@model Prueba_Myper.Models.DTO.TrabajadorVista
+
+<!-- Modal para Eliminar -->
+<div class="modal fade" id="modalEliminar-@Model.Id" tabindex="-1" aria-labelledby="modalEliminarLabel-@Model.Id" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalEliminarLabel-@Model.Id">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                ¿Está seguro de eliminar al trabajador <strong>@Model.Nombres</strong> con DNI <strong>@Model.NumeroDocumento</strong>?
+            </div>
+            <div class="modal-footer">
+                <form asp-action="Eliminar" asp-controller="Trabajadores" asp-route-id="@Model.Id" method="post">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Sí, Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
