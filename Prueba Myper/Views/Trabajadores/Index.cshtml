@@ -1,0 +1,260 @@
+﻿@using Prueba_Myper.Models.DTO
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpContextAccessor
+
+@model IEnumerable<Prueba_Myper.Models.DTO.TrabajadorVista>
+
+
+@{
+    ViewData["Title"] = "Lista de Trabajadores";
+}
+
+<h1>@ViewData["Title"]</h1>
+<button type="button" class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#modalCrearTrabajador">
+    Registrar Trabajador
+</button>
+
+
+<table class="table">
+    Filtro
+    @{
+        var sexoSeleccionado = HttpContextAccessor.HttpContext?.Request.Query["sexo"].ToString();
+    }
+
+    <form method="get" asp-controller="Trabajadores" asp-action="Index">
+        <select name="sexo" class="form-select" onchange="this.form.submit()">
+            <option value="">-- Todos --</option>
+            <option value="M" selected="@(sexoSeleccionado == "M")">Masculino</option>
+            <option value="F" selected="@(sexoSeleccionado == "F")">Femenino</option>
+        </select>
+    </form>
+    <thead>
+       
+
+        <tr>
+            <th>ID</th>
+            <th>Tipo Documento</th>
+            <th>Numero Documento</th>
+            <th>Nombres</th>
+            <th>Sexo</th>
+            <th>Departamento</th>
+            <th>Provincia</th>
+            <th>Distrito</th>
+            <th>Acción</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var t in Model)
+        {
+            <tr style="@((t.Sexo?.ToLower() == "f") ? "background-color: pink;" :
+                       (t.Sexo?.ToLower() == "m") ? "background-color: lightblue;" : "")">
+                <td>@t.Id</td>
+                <td>@t.TipoDocumento</td>
+                <td>@t.NumeroDocumento</td>
+                <td>@t.Nombres</td>
+                <td>@t.Sexo</td>
+                <td>@t.NombreDepartamento</td>
+                <td>@t.NombreProvincia</td>
+                <td>@t.NombreDistrito</td>
+                <td>
+                    
+                    <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminar-@t.Id">
+                        <span class="bi bi-trash"></span> Eliminar
+                    </button>
+
+                    <button type="button" class="btn btn-sm btn-warning"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalEditarTrabajador"
+                            data-id="@t.Id"
+                            data-tipodocumento="@t.TipoDocumento"
+                            data-numerodocumento="@t.NumeroDocumento"
+                            data-nombres="@t.Nombres"
+                            data-sexo="@t.Sexo"
+                            data-iddepartamento="@t.IdDepartamento"
+                            data-idprovincia="@t.IdProvincia"
+                            data-iddistrito="@t.IdDistrito">
+                        <i class="bi bi-pencil-square"></i> Editar
+                    </button>
+
+
+                   
+                </td>
+            </tr>
+            //Modal para Eliminar
+            <div class="modal fade" id="modalEliminar-@t.Id" tabindex="-1" aria-labelledby="modalEliminarLabel-@t.Id" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header bg-danger text-white">
+                            <h5 class="modal-title" id="modalEliminarLabel-@t.Id">Confirmar Eliminación</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                        </div>
+                        <div class="modal-body">
+                            ¿Está seguro de eliminar al trabajador <strong>@t.Nombres</strong> con DNI <strong>@t.NumeroDocumento</strong>?
+                        </div>
+                        <div class="modal-footer">
+                            <form asp-action="Eliminar" asp-controller="Trabajadores" asp-route-id="@t.Id" method="post">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-danger">Sí, Eliminar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+           
+            <!-- Modal Actualizar -->
+            <div class="modal fade" id="modalEditarTrabajador" tabindex="-1" aria-labelledby="modalEditarTrabajadorLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <form action="/Trabajadores/Actualizar" method="post">
+                           
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="modalEditarTrabajadorLabel">Editar Trabajador</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="hidden" name="Id" id="editarId" />
+
+                                <div class="mb-3">
+                                    <label class="form-label">Tipo Documento</label>
+                                    <select name="TipoDocumento" id="editarTipoDocumento" class="form-select" required>
+                                        <option value="DNI">DNI</option>
+                                        <option value="CE">Carné de Extranjería</option>
+                                        <option value="PAS">Pasaporte</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Número Documento</label>
+                                    <input name="NumeroDocumento" id="editarNumeroDocumento" class="form-control" required />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Nombres</label>
+                                    <input name="Nombres" id="editarNombres" class="form-control" required />
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Sexo</label>
+                                    <select name="Sexo" id="editarSexo" class="form-select" required>
+                                        <option value="M">Masculino</option>
+                                        <option value="F">Femenino</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Departamento</label>
+                                    <select name="IdDepartamento" id="editarDepartamento" class="form-select" required>
+                                        <option value="">-- Selecciona --</option>
+                                        @foreach (var d in ViewBag.Departamentos as List<DepartamentoDto>)
+                                        {
+                                            <option value="@d.Id">@d.NombreDepartamento</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Provincia</label>
+                                    <select name="IdProvincia" id="editarProvincia" class="form-select" required>
+                                        <option value="">-- Selecciona --</option>
+                                    </select>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label">Distrito</label>
+                                    <select name="IdDistrito" id="editarDistrito" class="form-select" required>
+                                        <option value="">-- Selecciona --</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+
+
+        }
+    </tbody>
+</table>
+<!-- Modal Crear -->
+<div class="modal fade" id="modalCrearTrabajador" tabindex="-1" aria-labelledby="modalCrearTrabajadorLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="/Trabajadores/Crear" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalCrearTrabajadorLabel">Nuevo Trabajador</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tipo Documento</label>
+                        <select name="TipoDocumento" class="form-select" required>
+                            <option value="">-- Selecciona --</option>
+                            <option value="DNI">DNI</option>
+                            <option value="CE">Carné de Extranjería</option>
+                            <option value="PAS">Pasaporte</option>                            
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Número Documento</label>
+                        <input name="NumeroDocumento" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nombres</label>
+                        <input name="Nombres" class="form-control" required />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Sexo</label>
+                        <select name="Sexo" class="form-select" required>
+                            <option value="">Seleccione</option>
+                            <option value="M">Masculino</option>
+                            <option value="F">Femenino</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="departamento">Departamento</label>
+                        <select id="departamento" name="IdDepartamento" class="form-select" required>
+
+                            <option value="">-- Selecciona --</option>
+                            @foreach (var d in ViewBag.Departamentos as List<DepartamentoDto>)
+                            {
+                                <option value="@d.Id">@d.NombreDepartamento</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="provincia">Provincia</label>
+                        <select id="provincia" name="IdProvincia" class="form-select" required>
+
+                            <option value="">-- Selecciona --</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="distrito">Distrito</label>
+                        <select id="distrito" name="IdDistrito" class="form-select" required>
+
+                            <option value="">-- Selecciona --</option>
+                        </select>
+                    </div>
+
+
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="~/js/site.js"></script>
